@@ -1,2 +1,3 @@
-# my-media-trove
-My Media Trove
+## License
+
+Proprietary - All rights reserved.
