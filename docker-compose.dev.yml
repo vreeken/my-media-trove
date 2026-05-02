@@ -3,7 +3,9 @@ services:
   nginx:
     image: nginx:alpine
     container_name: mmt_nginx
-    # Removed ports - Nginx Proxy Manager handles external access
+    ports:
+      - "3030:80"
+      - "3443:443"
     volumes:
       - ./backend:/var/www/html
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
@@ -11,8 +13,7 @@ services:
       - php
       - frontend
     networks:
-      - proxy        # Connected to Nginx Proxy Manager
-      - mmt_network  # Connected to your other containers
+      - mmt_network
 
   # PHP-FPM Service
   php:
@@ -25,15 +26,15 @@ services:
     environment:
       - PHP_MEMORY_LIMIT=1024M
     depends_on:
+      - mysql
       - redis
     networks:
       - mmt_network
 
-  # MySQL Database (dev only)
+  # MySQL Database
   mysql:
     image: mysql:8.0
     container_name: mmt_mysql
-    profiles: ["dev"]  # Only starts with --profile dev
     ports:
       - "3306:3306"
     environment:
@@ -52,26 +53,26 @@ services:
     image: redis:7-alpine
     container_name: mmt_redis
     ports:
-      - "6380:6379"
+      - "6380:6379"  # Host port 6380 -> Container port 6379
     volumes:
       - redis_data:/data
     networks:
       - mmt_network
 
-  # Vue.js Frontend
+  # Vue.js Frontend (Development)
   frontend:
     build:
       context: ./docker/node
       dockerfile: Dockerfile
     container_name: mmt_frontend
+    ports:
+      - "5273:5173"  # Host port 5174 -> Container port 5173
     volumes:
       - ./frontend:/app
       - frontend_node_modules:/app/node_modules
     environment:
-      - NODE_ENV=production
-      - HOST=0.0.0.0
-      - PORT=3000
-    command: sh -c "npm install && npm run build && node .output/server/index.mjs"
+      - NODE_ENV=development
+    command: npm run dev -- --host 0.0.0.0
     networks:
       - mmt_network
 
@@ -85,6 +86,7 @@ services:
       - ./backend:/var/www/html
     command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
     depends_on:
+      - mysql
       - redis
     networks:
       - mmt_network
@@ -99,14 +101,12 @@ services:
       - ./backend:/var/www/html
     command: /bin/sh -c "while true; do php artisan schedule:run --verbose --no-interaction & sleep 60; done"
     depends_on:
+      - mysql
       - redis
     networks:
       - mmt_network
 
 networks:
-  proxy:
-    external: true  # Connects to Nginx Proxy Manager
-    name: docker_proxy
   mmt_network:
     driver: bridge
 
