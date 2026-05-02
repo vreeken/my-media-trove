@@ -43,6 +43,7 @@ export interface MediaItem {
   location?: Location
   location_id?: string
   tags: Tag[]
+  tag_ids?: string[]
   created_at: string
   updated_at: string
   media_item_id?: string // Reference to shared media catalog
