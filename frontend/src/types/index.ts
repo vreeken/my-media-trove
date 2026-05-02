@@ -41,6 +41,7 @@ export interface MediaItem {
   notes?: string
   metadata: Record<string, unknown>
   location?: Location
+  location_id?: string
   tags: Tag[]
   created_at: string
   updated_at: string
@@ -136,6 +137,7 @@ export interface WishlistItem {
   poster_url?: string
   external_id?: string
   external_source?: string
+  description?: string
   notes?: string
   priority: number
   metadata: Record<string, unknown>

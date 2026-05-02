@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import Quagga from '@ericblade/quagga2'
+import Quagga, { type QuaggaJSResultObject } from '@ericblade/quagga2'
 
 const emit = defineEmits<{
   detected: [barcode: string, format: string]
@@ -22,7 +22,6 @@ function initScanner() {
   Quagga.init(
     {
       inputStream: {
-        name: 'Live',
         type: 'LiveStream',
         target: scannerRef.value,
         constraints: {
@@ -63,7 +62,7 @@ function initScanner() {
   Quagga.onDetected(handleDetection)
 }
 
-function handleDetection(result: Quagga.QuaggaJSResultObject) {
+function handleDetection(result: QuaggaJSResultObject) {
   const code = result.codeResult.code
   const format = result.codeResult.format
 

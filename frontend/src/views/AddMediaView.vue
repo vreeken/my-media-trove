@@ -299,7 +299,7 @@ function closeBarcodeScanner() {
   showBarcodeScanner.value = false
 }
 
-async function handleBarcodeDetected(barcode: string, format: string) {
+async function handleBarcodeDetected(barcode: string, _format: string) {
   showBarcodeScanner.value = false
   currentBarcode.value = barcode
   barcodeLoading.value = true
